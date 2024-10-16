@@ -30,6 +30,9 @@ public class Task {
     @Column(name = "description", nullable = false, length = 100)
     private String description;
 
+    @Column(name = "weather", nullable = false, length = 50)
+    private String weather;
+
     @Column(nullable = false)
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)

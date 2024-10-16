@@ -9,14 +9,16 @@ import java.time.LocalDateTime;
 public class TaskResponseDto {
     private final Long id;
     private final String title;
-    private final String todo;
+    private final String content;
+    private final String weather;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
     public TaskResponseDto(Task task) {
         this.id = task.getId();
         this.title = task.getTitle();
-        this.todo = task.getDescription();
+        this.content = task.getDescription();
+        this.weather = task.getWeather();
         this.createdAt = task.getCreateAt();
         this.modifiedAt = task.getUpdateAt();
     }

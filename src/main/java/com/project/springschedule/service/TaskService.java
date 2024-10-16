@@ -9,18 +9,32 @@ import com.project.springschedule.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.nio.file.AccessDeniedException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
 public class TaskService {
     private final TaskRepository taskRepository;
+    private final RestTemplate restTemplate = new RestTemplate();
 
     public TaskResponseDto createTask(TaskRequestDto taskRequestDto, User user) {
         Task task = new Task(taskRequestDto, user);
+        String url = "https://f-api.github.io/f-api/weather.json";
+        List<Map<String, String>> weatherList = restTemplate.getForObject(url, List.class);
+
+        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("MM-dd"));
+        for (Map<String, String> weatherData : weatherList) {
+            if (today.equals(weatherData.get("date"))) {
+                task.setWeather(weatherData.get("weather"));
+            }
+        }
+
         taskRepository.save(task);
 
         return new TaskResponseDto(task);
@@ -69,5 +83,18 @@ public class TaskService {
         taskRepository.delete(task);
 
         return new TaskResponseDto(task);
+    }
+
+    public String restApi(){
+        String url = "https://f-api.github.io/f-api/weather.json";
+        List<Map<String, String>> weatherList = restTemplate.getForObject(url, List.class);
+
+        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("MM-dd"));
+        for (Map<String, String> weatherData : weatherList) {
+            if (today.equals(weatherData.get("date"))) {
+                return weatherData.get("weather"); // 오늘의 날씨 반환
+            }
+        }
+        return "";
     }
 }

@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -47,10 +49,16 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody UserLoginRequestDto userRequestDto, HttpServletResponse response) {
+    public ResponseEntity<String> login(@RequestBody UserLoginRequestDto userRequestDto, HttpServletResponse response) {
         String token = userService.login(userRequestDto);
-        jwtUtil.addJwtToCookie(token, response);
-        return "Login Success";
+
+        if (token != null) {
+            jwtUtil.addJwtToCookie(token, response);
+            return ResponseEntity.ok("로그인 성공");
+        } else {
+            // 이메일과 비밀번호가 일치하지 않을 경우 401 상태 코드 반환
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("이메일 또는 비밀번호가 일치하지 않습니다.");
+        }
     }
 
 

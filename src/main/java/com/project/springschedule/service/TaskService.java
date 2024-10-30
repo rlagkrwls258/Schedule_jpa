@@ -5,6 +5,8 @@ import com.project.springschedule.domain.Task;
 import com.project.springschedule.domain.User;
 import com.project.springschedule.dto.request.TaskRequestDto;
 import com.project.springschedule.dto.response.TaskResponseDto;
+import com.project.springschedule.exception.CustomApiException;
+import com.project.springschedule.exception.ErrorCode;
 import com.project.springschedule.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -56,12 +58,10 @@ public class TaskService {
 
     public TaskResponseDto updateTask(User user, Long taskId, TaskRequestDto taskRequestDto) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new NoSuchElementException("Task with ID " + taskId + " not found"));
+                .orElseThrow(() -> new CustomApiException(ErrorCode.TASK_NOT_FOUND));
 
         // 현재 사용자가 해당 Task를 삭제할 권한이 없을 경우 예외 던짐
-        if (!task.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You do not have permission to delete this task.");
-        }
+        task.validUser(user);
 
         task.setTitle(taskRequestDto.getTitle());
         task.setDescription(taskRequestDto.getDescription());
@@ -72,13 +72,10 @@ public class TaskService {
 
     public TaskResponseDto deleteTask(User user, Long taskId) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new NoSuchElementException("Task with ID " + taskId + " not found"));
+                .orElseThrow(() ->  new CustomApiException(ErrorCode.TASK_NOT_FOUND));
 
         // 현재 사용자가 해당 Task를 삭제할 권한이 없을 경우 예외 던짐
-        if (!task.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("You do not have permission to delete this task.");
-        }
-
+        task.validUser(user);
 
         taskRepository.delete(task);
 

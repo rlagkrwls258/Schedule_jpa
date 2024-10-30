@@ -1,6 +1,8 @@
 package com.project.springschedule.domain;
 
 import com.project.springschedule.dto.request.TaskRequestDto;
+import com.project.springschedule.exception.CustomApiException;
+import com.project.springschedule.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -56,5 +58,11 @@ public class Task {
         this.createAt = LocalDateTime.now();
         this.updateAt = LocalDateTime.now();
         this.user = user;
+    }
+
+    public void validUser(User user) {
+        if (!this.user.getId().equals(user.getId())) {
+            throw new CustomApiException(ErrorCode.USER_FORBIDDEN);
+        }
     }
 }
